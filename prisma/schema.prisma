@@ -1,0 +1,111 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relacionamentos
+  couples      CoupleUser[]
+  transactions Transaction[]
+
+  @@map("users")
+}
+
+model Couple {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relacionamentos
+  users        CoupleUser[]
+  transactions Transaction[]
+  categories   Category[]
+  budgets      Budget[]
+
+  @@map("couples")
+}
+
+model CoupleUser {
+  id       String @id @default(cuid())
+  userId   String
+  coupleId String
+  role     String @default("member") // member, admin
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  couple Couple @relation(fields: [coupleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, coupleId])
+  @@map("couple_users")
+}
+
+model Transaction {
+  id          String          @id @default(cuid())
+  description String
+  amount      Decimal         @db.Decimal(10, 2)
+  type        TransactionType
+  date        DateTime
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  // Relacionamentos
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  coupleId   String
+  couple     Couple   @relation(fields: [coupleId], references: [id], onDelete: Cascade)
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  @@map("transactions")
+}
+
+model Category {
+  id    String @id @default(cuid())
+  name  String
+  color String @default("#3B82F6")
+  icon  String @default("💰")
+  type  TransactionType
+
+  // Relacionamentos
+  coupleId     String
+  couple       Couple        @relation(fields: [coupleId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+  budgets      Budget[]
+
+  @@unique([coupleId, name, type])
+  @@map("categories")
+}
+
+model Budget {
+  id        String   @id @default(cuid())
+  month     Int // 1-12
+  year      Int
+  amount    Decimal  @db.Decimal(10, 2)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relacionamentos
+  coupleId   String
+  couple     Couple   @relation(fields: [coupleId], references: [id], onDelete: Cascade)
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  @@unique([coupleId, categoryId, month, year])
+  @@map("budgets")
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
