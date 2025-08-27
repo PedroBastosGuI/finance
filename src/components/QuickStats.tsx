@@ -3,12 +3,19 @@
 import { useState, useEffect } from 'react'
 import { LineChart, Line, ResponsiveContainer } from 'recharts'
 
+interface MonthlyData {
+  month: string
+  income: number
+  expense: number
+  balance: number
+}
+
 interface QuickStatsProps {
   refresh: boolean
 }
 
 export default function QuickStats({ refresh }: QuickStatsProps) {
-  const [monthlyData, setMonthlyData] = useState([])
+  const [monthlyData, setMonthlyData] = useState<MonthlyData[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -67,7 +74,7 @@ export default function QuickStats({ refresh }: QuickStatsProps) {
           <p className="text-sm text-gray-500">Melhor mês</p>
           <p className="font-semibold text-green-600">
             {monthlyData.length > 0 
-              ? Math.max(...monthlyData.map((d: any) => d.balance)).toLocaleString('pt-BR', {
+              ? Math.max(...monthlyData.map(d => d.balance)).toLocaleString('pt-BR', {
                   style: 'currency',
                   currency: 'BRL'
                 })
@@ -79,7 +86,7 @@ export default function QuickStats({ refresh }: QuickStatsProps) {
           <p className="text-sm text-gray-500">Média</p>
           <p className="font-semibold text-blue-600">
             {monthlyData.length > 0
-              ? (monthlyData.reduce((sum: number, d: any) => sum + d.balance, 0) / monthlyData.length).toLocaleString('pt-BR', {
+              ? (monthlyData.reduce((sum, d) => sum + d.balance, 0) / monthlyData.length).toLocaleString('pt-BR', {
                   style: 'currency',
                   currency: 'BRL'
                 })
@@ -90,11 +97,11 @@ export default function QuickStats({ refresh }: QuickStatsProps) {
         <div>
           <p className="text-sm text-gray-500">Atual</p>
           <p className="font-semibold text-gray-900">
-            {monthlyData.length > 0
-              ? monthlyData[monthlyData.length - 1]?.balance?.toLocaleString('pt-BR', {
+            {monthlyData.length > 0 && monthlyData[monthlyData.length - 1]
+              ? monthlyData[monthlyData.length - 1].balance.toLocaleString('pt-BR', {
                   style: 'currency',
                   currency: 'BRL'
-                }) || 'R$ 0,00'
+                })
               : 'R$ 0,00'
             }
           </p>

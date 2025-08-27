@@ -20,7 +20,7 @@ export default function TransactionForm({ onSuccess }: TransactionFormProps) {
   const [formData, setFormData] = useState({
     description: '',
     amount: '',
-    type: TransactionType.EXPENSE,
+    type: TransactionType.EXPENSE as TransactionType,
     categoryId: '',
     date: new Date().toISOString().split('T')[0]
   })
@@ -55,7 +55,7 @@ export default function TransactionForm({ onSuccess }: TransactionFormProps) {
         setFormData({
           description: '',
           amount: '',
-          type: TransactionType.EXPENSE,
+          type: TransactionType.EXPENSE as TransactionType,
           categoryId: '',
           date: new Date().toISOString().split('T')[0]
         })
