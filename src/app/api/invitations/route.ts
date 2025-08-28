@@ -3,6 +3,9 @@ import { getCurrentUser, getUserCouple } from '@/lib/utils'
 import { prisma } from '@/lib/prisma'
 import crypto from 'crypto'
 
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
+
 export async function POST(request: NextRequest) {
   try {
     const user = await getCurrentUser()
