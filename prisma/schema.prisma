@@ -18,6 +18,7 @@ model User {
   // Relacionamentos
   couples      CoupleUser[]
   transactions Transaction[]
+  invitations  Invitation[]
 
   @@map("users")
 }
@@ -33,6 +34,7 @@ model Couple {
   transactions Transaction[]
   categories   Category[]
   budgets      Budget[]
+  invitations  Invitation[]
 
   @@map("couples")
 }
@@ -105,7 +107,31 @@ model Budget {
   @@map("budgets")
 }
 
+model Invitation {
+  id        String   @id @default(cuid())
+  email     String
+  token     String   @unique
+  coupleId  String
+  invitedBy String
+  status    InvitationStatus @default(PENDING)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  couple    Couple @relation(fields: [coupleId], references: [id], onDelete: Cascade)
+  inviter   User   @relation(fields: [invitedBy], references: [id])
+
+  @@unique([email, coupleId])
+  @@map("invitations")
+}
+
 enum TransactionType {
   INCOME
   EXPENSE
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  EXPIRED
 }

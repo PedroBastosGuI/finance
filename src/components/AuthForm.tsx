@@ -34,7 +34,8 @@ export default function AuthForm({ mode }: AuthFormProps) {
 
         if (!res.ok) {
           const data = await res.json()
-          throw new Error(data.error)
+          console.error('Erro do servidor:', data)
+          throw new Error(data.error || 'Erro no servidor')
         }
 
         router.push('/auth/login?message=Conta criada com sucesso!')

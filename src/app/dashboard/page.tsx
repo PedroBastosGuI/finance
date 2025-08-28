@@ -10,6 +10,7 @@ import CoupleSetup from '@/components/CoupleSetup'
 import DashboardStats from '@/components/DashboardStats'
 import QuickStats from '@/components/QuickStats'
 import PredictionPreview from '@/components/PredictionPreview'
+import InvitePartner from '@/components/InvitePartner'
 
 export default function DashboardPage() {
   const { data: session, status } = useSession()
@@ -112,6 +113,7 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-1 space-y-6">
             <TransactionForm onSuccess={handleTransactionSuccess} />
+            <InvitePartner />
             <QuickStats refresh={refreshTransactions} />
             <PredictionPreview refresh={refreshTransactions} />
           </div>
