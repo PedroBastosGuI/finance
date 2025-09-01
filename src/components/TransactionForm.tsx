@@ -1,8 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { TransactionType } from '@prisma/client'
-import { Plus, TrendingUp, TrendingDown, Calendar, DollarSign, FileText, Tag, Loader2 } from 'lucide-react'
+import { TransactionType, PaymentMethod } from '@prisma/client'
+import { toast } from 'react-toastify'
+import { Plus, TrendingUp, TrendingDown, Calendar, DollarSign, FileText, Tag, Loader2, CreditCard } from 'lucide-react'
 
 interface Category {
   id: string
@@ -21,6 +22,7 @@ export default function TransactionForm({ onSuccess }: TransactionFormProps) {
     description: '',
     amount: '',
     type: TransactionType.EXPENSE as TransactionType,
+    paymentMethod: PaymentMethod.PIX as PaymentMethod,
     categoryId: '',
     date: new Date().toISOString().split('T')[0]
   })
@@ -52,17 +54,22 @@ export default function TransactionForm({ onSuccess }: TransactionFormProps) {
       })
 
       if (res.ok) {
+        toast.success('Transação criada com sucesso!')
         setFormData({
           description: '',
           amount: '',
           type: TransactionType.EXPENSE as TransactionType,
+          paymentMethod: PaymentMethod.PIX as PaymentMethod,
           categoryId: '',
           date: new Date().toISOString().split('T')[0]
         })
         onSuccess()
+      } else {
+        const data = await res.json()
+        toast.error(data.error || 'Erro ao criar transação')
       }
     } catch (error) {
-      console.error('Erro ao salvar transação:', error)
+      toast.error('Erro ao criar transação')
     } finally {
       setLoading(false)
     }
@@ -82,7 +89,7 @@ export default function TransactionForm({ onSuccess }: TransactionFormProps) {
         <div className="grid grid-cols-2 gap-3">
           <button
             type="button"
-            onClick={() => setFormData({ ...formData, type: TransactionType.INCOME, categoryId: '' })}
+            onClick={() => setFormData({ ...formData, type: TransactionType.INCOME, categoryId: '', paymentMethod: PaymentMethod.PIX })}
             className={`p-3 rounded-lg border-2 transition-colors flex items-center justify-center gap-2 ${
               formData.type === TransactionType.INCOME
                 ? 'border-success bg-success/10 text-success'
@@ -94,7 +101,7 @@ export default function TransactionForm({ onSuccess }: TransactionFormProps) {
           </button>
           <button
             type="button"
-            onClick={() => setFormData({ ...formData, type: TransactionType.EXPENSE, categoryId: '' })}
+            onClick={() => setFormData({ ...formData, type: TransactionType.EXPENSE, categoryId: '', paymentMethod: PaymentMethod.PIX })}
             className={`p-3 rounded-lg border-2 transition-colors flex items-center justify-center gap-2 ${
               formData.type === TransactionType.EXPENSE
                 ? 'border-destructive bg-destructive/10 text-destructive'
@@ -159,6 +166,27 @@ export default function TransactionForm({ onSuccess }: TransactionFormProps) {
             ))}
           </select>
         </div>
+
+        {/* Payment Method - Only for expenses */}
+        {formData.type === TransactionType.EXPENSE && (
+          <div className="space-y-2">
+            <label className="text-sm font-medium flex items-center gap-1">
+              <CreditCard className="h-4 w-4" />
+              Meio de Pagamento
+            </label>
+            <select
+              value={formData.paymentMethod}
+              onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value as PaymentMethod })}
+              className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring bg-background"
+            >
+              <option value={PaymentMethod.PIX}>PIX</option>
+              <option value={PaymentMethod.DEBIT}>Cartão de Débito</option>
+              <option value={PaymentMethod.CREDIT}>Cartão de Crédito</option>
+              <option value={PaymentMethod.CASH}>Dinheiro</option>
+              <option value={PaymentMethod.TRANSFER}>Transferência</option>
+            </select>
+          </div>
+        )}
 
         {/* Date */}
         <div className="space-y-2">

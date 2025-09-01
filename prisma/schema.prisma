@@ -53,13 +53,14 @@ model CoupleUser {
 }
 
 model Transaction {
-  id          String          @id @default(cuid())
-  description String
-  amount      Decimal         @db.Decimal(10, 2)
-  type        TransactionType
-  date        DateTime
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
+  id            String          @id @default(cuid())
+  description   String
+  amount        Decimal         @db.Decimal(10, 2)
+  type          TransactionType
+  paymentMethod PaymentMethod?  @default(PIX)
+  date          DateTime
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
 
   // Relacionamentos
   userId     String
@@ -134,4 +135,23 @@ enum InvitationStatus {
   PENDING
   ACCEPTED
   EXPIRED
+}
+
+model PasswordReset {
+  id        String   @id @default(cuid())
+  email     String
+  token     String   @unique
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@map("password_resets")
+}
+
+enum PaymentMethod {
+  CREDIT
+  DEBIT
+  PIX
+  CASH
+  TRANSFER
 }

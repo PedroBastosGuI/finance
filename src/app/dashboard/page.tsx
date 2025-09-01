@@ -5,7 +5,8 @@ import { useSession } from 'next-auth/react'
 import { redirect } from 'next/navigation'
 import { LayoutDashboard, BarChart3, TrendingUp, LogOut, Menu } from 'lucide-react'
 import TransactionForm from '@/components/TransactionForm'
-import TransactionList from '@/components/TransactionList'
+import TransactionTabs from '@/components/TransactionTabs'
+import EditTransactionModal from '@/components/EditTransactionModal'
 import CoupleSetup from '@/components/CoupleSetup'
 import DashboardStats from '@/components/DashboardStats'
 import QuickStats from '@/components/QuickStats'
@@ -16,6 +17,8 @@ export default function DashboardPage() {
   const { data: session, status } = useSession()
   const [hasCouple, setHasCouple] = useState<boolean | null>(null)
   const [refreshTransactions, setRefreshTransactions] = useState(false)
+  const [editingTransaction, setEditingTransaction] = useState<any>(null)
+  const [selectedMonth, setSelectedMonth] = useState<string>('')
 
   useEffect(() => {
     if (status === 'authenticated') {
@@ -108,7 +111,7 @@ export default function DashboardPage() {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <DashboardStats refresh={refreshTransactions} />
+        <DashboardStats refresh={refreshTransactions} selectedMonth={selectedMonth} />
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-1 space-y-6">
@@ -119,10 +122,21 @@ export default function DashboardPage() {
           </div>
           
           <div className="lg:col-span-2">
-            <TransactionList refresh={refreshTransactions} />
+            <TransactionTabs 
+              refresh={refreshTransactions} 
+              onEdit={setEditingTransaction}
+              onMonthChange={setSelectedMonth}
+            />
           </div>
         </div>
       </div>
+
+      {/* Edit Modal */}
+      <EditTransactionModal
+        transaction={editingTransaction}
+        onClose={() => setEditingTransaction(null)}
+        onSuccess={handleTransactionSuccess}
+      />
     </div>
   )
 }

@@ -13,9 +13,10 @@ interface DashboardData {
 
 interface DashboardStatsProps {
   refresh: boolean
+  selectedMonth?: string
 }
 
-export default function DashboardStats({ refresh }: DashboardStatsProps) {
+export default function DashboardStats({ refresh, selectedMonth }: DashboardStatsProps) {
   const [data, setData] = useState<DashboardData>({
     income: 0,
     expense: 0,
@@ -26,13 +27,20 @@ export default function DashboardStats({ refresh }: DashboardStatsProps) {
 
   useEffect(() => {
     fetchDashboardData()
-  }, [refresh])
+  }, [refresh, selectedMonth])
 
   const fetchDashboardData = async () => {
+    setLoading(true)
     try {
-      const res = await fetch('/api/dashboard')
+      const endpoint = selectedMonth ? `/api/dashboard/${selectedMonth}` : '/api/dashboard'
+      const res = await fetch(endpoint)
       const dashboardData = await res.json()
-      setData(dashboardData)
+      
+      if (res.ok) {
+        setData(dashboardData)
+      } else {
+        console.error('Erro na API:', dashboardData.error)
+      }
     } catch (error) {
       console.error('Erro ao carregar dados do dashboard:', error)
     } finally {

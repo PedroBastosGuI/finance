@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
+import { toast } from 'react-toastify'
 import { TrendingUp, Mail, Lock, User, AlertCircle, Loader2 } from 'lucide-react'
 
 interface AuthFormProps {
@@ -34,11 +35,12 @@ export default function AuthForm({ mode }: AuthFormProps) {
 
         if (!res.ok) {
           const data = await res.json()
-          console.error('Erro do servidor:', data)
-          throw new Error(data.error || 'Erro no servidor')
+          toast.error(data.error || 'Erro no servidor')
+          return
         }
 
-        router.push('/auth/login?message=Conta criada com sucesso!')
+        toast.success('Conta criada com sucesso!')
+        router.push('/auth/login')
       } else {
         const result = await signIn('credentials', {
           email: formData.email,
@@ -48,12 +50,15 @@ export default function AuthForm({ mode }: AuthFormProps) {
 
         if (result?.error) {
           setError('Email ou senha inválidos')
+          toast.error('Email ou senha inválidos')
         } else {
+          toast.success('Login realizado com sucesso!')
           router.push('/dashboard')
         }
       }
     } catch (err: any) {
       setError(err.message)
+      toast.error(err.message)
     } finally {
       setLoading(false)
     }
@@ -158,14 +163,21 @@ export default function AuthForm({ mode }: AuthFormProps) {
           </form>
 
           {/* Footer */}
-          <div className="mt-6 text-center">
+          <div className="mt-6 text-center space-y-3">
             {mode === 'login' ? (
-              <p className="text-sm text-muted-foreground">
-                Não tem conta?{' '}
-                <a href="/auth/register" className="text-primary hover:underline font-medium">
-                  Criar conta gratuita
-                </a>
-              </p>
+              <>
+                <p className="text-sm text-muted-foreground">
+                  <a href="/auth/forgot-password" className="text-primary hover:underline font-medium">
+                    Esqueceu sua senha?
+                  </a>
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Não tem conta?{' '}
+                  <a href="/auth/register" className="text-primary hover:underline font-medium">
+                    Criar conta gratuita
+                  </a>
+                </p>
+              </>
             ) : (
               <p className="text-sm text-muted-foreground">
                 Já tem conta?{' '}

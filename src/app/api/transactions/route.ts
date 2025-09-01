@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Casal não encontrado' }, { status: 404 })
     }
 
-    const { description, amount, type, categoryId, date } = await request.json()
+    const { description, amount, type, categoryId, date, paymentMethod } = await request.json()
 
     if (!description || !amount || !type || !categoryId || !date) {
       return NextResponse.json({ error: 'Todos os campos são obrigatórios' }, { status: 400 })
@@ -55,6 +55,7 @@ export async function POST(request: NextRequest) {
         description,
         amount: parseFloat(amount),
         type,
+        paymentMethod: paymentMethod || 'PIX',
         categoryId,
         date: new Date(date),
         userId: user.id,

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { toast } from 'react-toastify'
 import { Mail, Send, Copy, Check, UserPlus } from 'lucide-react'
 
 interface InvitePartnerProps {
@@ -31,10 +32,10 @@ export default function InvitePartner({ onSuccess }: InvitePartnerProps) {
         setEmail('')
         onSuccess?.()
       } else {
-        alert(data.error)
+        toast.error(data.error)
       }
     } catch (error) {
-      alert('Erro ao enviar convite')
+      toast.error('Erro ao enviar convite')
     } finally {
       setLoading(false)
     }
@@ -46,7 +47,7 @@ export default function InvitePartner({ onSuccess }: InvitePartnerProps) {
       setCopied(true)
       setTimeout(() => setCopied(false), 2000)
     } catch (error) {
-      alert('Erro ao copiar link')
+      toast.error('Erro ao copiar link')
     }
   }
 
